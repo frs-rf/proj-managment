@@ -25,6 +25,11 @@ class DashboardController extends Controller
         $selectedProject = null;
         $sCurveData = [];
         $health = null;
+        $tasksByPriority = collect();
+        $tasksByStatus = collect();
+        $burndownLabels = [];
+        $idealLine = [];
+        $actualLine = [];
 
         if ($request->has('project_id')) {
             $selectedProject = Project::find($request->project_id);
