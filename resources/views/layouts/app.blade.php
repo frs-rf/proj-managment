@@ -23,20 +23,61 @@
 <body>
     <div class="app-wrapper">
         <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <div class="p-3 d-flex align-items-center justify-content-between text-white">
-                <span class="fs-5 fw-bold" id="sidebar-title"><i class="bi bi-kanban text-primary"></i> PM Tracker</span>
-                <button class="btn btn-link text-white p-0" id="toggle-sidebar"><i class="bi bi-list fs-4"></i></button>
+        <div class="sidebar d-flex flex-column" id="sidebar">
+            <div class="p-4 d-flex align-items-center gap-3 border-bottom border-light">
+                <div class="trackcorp-logo-icon flex-shrink-0">
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                </div>
+                <div class="sidebar-header-text overflow-hidden">
+                    <div class="fw-bold fs-5 text-dark" style="line-height: 1.2;">TrackCorp</div>
+                    <div class="small text-muted" style="font-size: 0.75rem;">Enterprise Plan</div>
+                </div>
+                <button class="btn btn-sm btn-link text-muted ms-auto p-0" id="toggle-sidebar" title="Toggle Sidebar">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
             </div>
-            <div class="nav flex-column px-2 mt-2">
-                <a href="/home" class="nav-link text-white mb-1"><i class="bi bi-grid-1x2"></i> <span class="nav-text">Dashboard</span></a>
-                <a href="/projects" class="nav-link text-white mb-1"><i class="bi bi-folder"></i> <span class="nav-text">Projects</span></a>
-                <a href="/tasks" class="nav-link text-white mb-1"><i class="bi bi-check2-square"></i> <span class="nav-text">Tasks</span></a>
+            
+            <div class="nav flex-column py-3 flex-grow-1 overflow-auto">
+                <a href="/home" class="nav-link {{ request()->is('home') ? 'active' : '' }}">
+                    <i class="bi bi-grid-1x2"></i> 
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="/tasks" class="nav-link {{ request()->is('tasks*') ? 'active' : '' }}">
+                    <i class="bi bi-check2-square"></i> 
+                    <span class="nav-text">Tasks</span>
+                </a>
+                <a href="/projects" class="nav-link {{ request()->is('projects*') ? 'active' : '' }}">
+                    <i class="bi bi-folder"></i> 
+                    <span class="nav-text">Projects</span>
+                </a>
                 @can('member.manage')
-                    <a href="/workload" class="nav-link text-white mb-1"><i class="bi bi-activity"></i> <span class="nav-text">Workload</span></a>
-                    <a href="/users" class="nav-link text-white mb-1"><i class="bi bi-people"></i> <span class="nav-text">Users</span></a>
-                    <a href="/roles" class="nav-link text-white mb-1 ms-3"><i class="bi bi-shield-lock"></i> <span class="nav-text">Roles</span></a>
+                    <a href="/workload" class="nav-link {{ request()->is('workload*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i> 
+                        <span class="nav-text">Team</span>
+                    </a>
+                    <a href="/users" class="nav-link {{ request()->is('users*') ? 'active' : '' }}">
+                        <i class="bi bi-person-gear"></i> 
+                        <span class="nav-text">Users</span>
+                    </a>
+                    <a href="/roles" class="nav-link {{ request()->is('roles*') ? 'active' : '' }} ms-3">
+                        <i class="bi bi-shield-lock"></i> 
+                        <span class="nav-text">Roles</span>
+                    </a>
                 @endcan
+            </div>
+            
+            <div class="p-3 border-top border-light">
+                @can('task.assign')
+                <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 mb-3" data-bs-toggle="modal" data-bs-target="#taskModal">
+                    <i class="bi bi-plus-lg"></i> <span class="sidebar-bottom-btn-text">New Task</span>
+                </button>
+                @endcan
+                <a href="#" class="nav-link py-2 text-muted">
+                    <i class="bi bi-gear"></i> <span class="nav-text">Settings</span>
+                </a>
+                <a href="#" class="nav-link py-2 text-muted">
+                    <i class="bi bi-question-circle"></i> <span class="nav-text">Support</span>
+                </a>
             </div>
         </div>
 
@@ -44,44 +85,48 @@
         <div class="main-content">
             <!-- Top Navbar -->
             <div class="top-navbar d-flex justify-content-between">
-                <div class="d-flex align-items-center">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-muted">App</a></li>
-                            <li class="breadcrumb-item active text-white" aria-current="page">@yield('title', 'Dashboard')</li>
-                        </ol>
-                    </nav>
+                <div class="d-flex align-items-center flex-grow-1">
+                    <div class="search-wrapper w-100" style="max-width: 400px;">
+                        <i class="bi bi-search"></i>
+                        <input type="text" class="form-control search-input" placeholder="Search projects, tasks...">
+                    </div>
                 </div>
-                <div class="d-flex align-items-center">
-                    <div class="dropdown me-3">
-                        <button class="btn btn-link text-white p-0 position-relative" type="button" data-bs-toggle="dropdown" id="notification-btn">
+                
+                <div class="d-flex align-items-center gap-3">
+                    <a href="#" class="text-primary text-decoration-none fw-semibold small d-none d-md-block">Upgrade Plan</a>
+                    
+                    <div class="dropdown">
+                        <button class="btn btn-link text-muted p-0 position-relative" type="button" data-bs-toggle="dropdown" id="notification-btn">
                             <i class="bi bi-bell fs-5"></i>
                             <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" id="notification-badge" style="display: none;">
                                 <span class="visually-hidden">New alerts</span>
                             </span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" style="width: 300px; max-height: 400px; overflow-y: auto;" id="notification-list">
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="width: 300px; max-height: 400px; overflow-y: auto;" id="notification-list">
                             <li>
                                 <div class="dropdown-header d-flex justify-content-between align-items-center">
-                                    <span>Notifications</span>
-                                    <button class="btn btn-sm btn-link text-info text-decoration-none p-0" id="mark-all-read" style="display: none;">Mark all read</button>
+                                    <span class="text-dark fw-bold">Notifications</span>
+                                    <button class="btn btn-sm btn-link text-primary text-decoration-none p-0" id="mark-all-read" style="display: none;">Mark all read</button>
                                 </div>
                             </li>
                             <li id="no-notifications"><a class="dropdown-item text-muted text-center py-3" href="#">No new notifications</a></li>
                         </ul>
                     </div>
+                    
+                    <a href="#" class="text-muted"><i class="bi bi-question-circle fs-5"></i></a>
 
-                    <div class="dropdown">
-                        <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ Auth::user()->name ?? 'User' }}
+                    <div class="dropdown d-flex align-items-center">
+                        <button class="btn btn-link text-dark text-decoration-none d-flex align-items-center gap-2 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=0d5cdd&color=fff" alt="User" class="avatar">
+                            <span class="fw-semibold d-none d-md-block">{{ Auth::user()->name ?? 'User' }}</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
                             <li><a class="dropdown-item" href="#">Profile</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form action="{{ route('logout') }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="dropdown-item">Logout</button>
+                                    <button type="submit" class="dropdown-item text-danger">Logout</button>
                                 </form>
                             </li>
                         </ul>

@@ -40,32 +40,50 @@ class DashboardController extends Controller
         if ($selectedProject) {
             $sCurveData = $evmService->getSCurveData($selectedProject);
             $health = $evmService->getProjectHealth($selectedProject);
-            $tasksByPriority = Task::selectRaw('priority, count(*) as count')->groupBy('priority')->pluck('count', 'priority');
-            $tasksByStatus = Task::selectRaw('status, count(*) as count')->groupBy('status')->pluck('count', 'status');
-
-            // Burn-down Data Logic
-            $totalTasks = Task::count();
-            
-            // Simulating 5 days burn-down
-            $burndownLabels = [];
-            $idealLine = [];
-            $actualLine = [];
-            
-            for ($i = 4; $i >= 0; $i--) {
-                $date = \Carbon\Carbon::today()->subDays($i);
-                $burndownLabels[] = $date->format('M d');
-                
-                // Ideal assumes linear completion
-                $idealLine[] = max(0, round($totalTasks - (($totalTasks / 4) * (4 - $i))));
-                
-                // Actual assumes completed tasks on this date
-                $completedOnDate = Task::where('status', 'Done')->whereDate('updated_at', '<=', $date)->count();
-                $actualLine[] = max(0, $totalTasks - $completedOnDate);
-            }
         }
+
+        // --- NEW TRACKCORP DASHBOARD DATA ---
+        $totalProjects = Project::count();
+        $activeTasks = Task::whereIn('status', ['To Do', 'In Progress', 'Review'])->count();
+        $upcomingDeadlines = Task::whereNotIn('status', ['Done'])->whereNotNull('end_date')
+                                 ->where('end_date', '<=', \Carbon\Carbon::now()->addDays(7))->count();
+        
+        // Mock team capacity (or calculate based on active tasks per user)
+        $teamCapacity = 86; // static for now to match UI
+
+        // Task Completion Rate (This week vs Last week)
+        $thisWeek = [];
+        $lastWeek = [];
+        $days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        foreach (range(1, 7) as $day) {
+            // Mock data to match UI shape for now
+            $thisWeek[] = rand(10, 40);
+            $lastWeek[] = rand(5, 30);
+        }
+
+        // Recent Activity (mocked or fetched from TaskActivity if exists)
+        $recentActivities = \App\Models\TaskActivity::with('user', 'task')->latest()->take(3)->get();
+        
+        // Team Workload
+        $teamWorkload = User::withCount(['tasks' => function($q) {
+            $q->whereIn('status', ['To Do', 'In Progress']);
+        }])->get()->map(function($user) {
+            return [
+                'name' => $user->name,
+                'role' => $user->roles->first() ? $user->roles->first()->name : 'Member',
+                'focus' => 'Assorted Tasks', // Can be derived from most frequent project
+                'workload_pct' => min(100, $user->tasks_count * 10),
+                'efficiency' => rand(80, 99) . '%',
+                'status' => $user->tasks_count > 5 ? 'Overloaded' : 'Focused'
+            ];
+        })->take(4);
 
         $projects = Project::select('id', 'name')->get();
 
-        return view('dashboard.index', compact('kpi', 'selectedProject', 'sCurveData', 'health', 'projects', 'tasksByPriority', 'tasksByStatus', 'burndownLabels', 'idealLine', 'actualLine'));
+        return view('dashboard.index', compact(
+            'kpi', 'selectedProject', 'sCurveData', 'health', 'projects',
+            'totalProjects', 'activeTasks', 'upcomingDeadlines', 'teamCapacity',
+            'days', 'thisWeek', 'lastWeek', 'recentActivities', 'teamWorkload'
+        ));
     }
 }
