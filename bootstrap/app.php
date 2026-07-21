@@ -19,4 +19,4 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
-    })->create();
+    })->create()->useStoragePath(env('APP_STORAGE', dirname(__DIR__).'/storage'));
