@@ -1,0 +1,121 @@
+// Fonts
+@import url('https://fonts.bunny.net/css?family=Inter:400,500,600,700');
+
+// Variables
+$primary: #5e6ad2; // Linear/Jira style accent color
+$body-bg: #121212; // Dark mode background
+$body-color: #e0e0e0;
+$input-bg: #1e1e1e;
+$input-color: #e0e0e0;
+$input-border-color: #333;
+$card-bg: #181818;
+$card-border-color: #333;
+
+@import 'bootstrap/scss/bootstrap';
+
+// Custom CSS for Jira/Linear style
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: $body-bg;
+    color: $body-color;
+}
+
+.auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #000000;
+}
+
+.auth-card {
+    background-color: $card-bg;
+    border: 1px solid $card-border-color;
+    border-radius: 8px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.auth-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: #fff;
+}
+
+.form-control {
+    background-color: $input-bg;
+    border: 1px solid $input-border-color;
+    color: $input-color;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+}
+
+.form-control:focus {
+    background-color: #242424;
+    border-color: $primary;
+    box-shadow: 0 0 0 0.25rem rgba($primary, 0.25);
+    color: #fff;
+}
+
+.btn-primary {
+    background-color: $primary;
+    border-color: $primary;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    border-radius: 6px;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    background-color: darken($primary, 10%);
+    border-color: darken($primary, 10%);
+}
+
+.text-muted {
+    color: #888 !important;
+}
+
+// Layout styles
+.app-wrapper {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 260px;
+    background-color: #000;
+    border-right: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+    width: 64px;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #121212;
+    overflow-y: auto;
+}
+
+.top-navbar {
+    height: 60px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    background-color: #121212;
+}
+
+.content-area {
+    padding: 2rem;
+}
