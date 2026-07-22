@@ -25,3 +25,8 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Local debug/build artifacts
+/vercel_public
+/create_db.php
+/test_dashboard.php
